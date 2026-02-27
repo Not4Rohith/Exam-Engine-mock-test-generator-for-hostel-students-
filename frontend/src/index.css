@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+/* This is the official v4 way to hook up our Theme Toggle button! */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-gray-900 transition-colors duration-200;
+  }
+  
+  .dark body {
+    @apply bg-slate-900 text-gray-100;
+  }
+}

@@ -1,0 +1,18 @@
+# Python / Virtual Environment
+myvenv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Databases
+*.db
+*.sqlite3
+backend/app/exam_engine.db
+
+# Environment variables
+.env
+
+# Node / React Frontend
+frontend/node_modules/
+frontend/dist/
+.DS_Store
