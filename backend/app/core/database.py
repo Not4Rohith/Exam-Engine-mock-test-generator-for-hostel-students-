@@ -2,24 +2,32 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# Looks for the cloud URL first. If not found, safely falls back to local SQLite.
+# 1. Get the URL
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./backend/app/exam_engine.db")
 
-# Ensures the URL starts with the correct SQLAlchemy prefix
+# 2. Fix the prefix for Postgres
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-# SQLite needs a special thread flag, Postgres doesn't
+# 3. Create the engine with "Self-Healing" capabilities
 if DATABASE_URL.startswith("sqlite"):
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 else:
-    engine = create_engine(DATABASE_URL)
+    # 🌟 THIS IS THE FIX:
+    # pool_pre_ping: Tests the connection before every query to avoid the SSL crash
+    # pool_recycle: Forces a new connection every 5 minutes before the cloud provider kills it
+    engine = create_engine(
+        DATABASE_URL,
+        pool_size=10,
+        max_overflow=20,
+        pool_timeout=30,
+        pool_recycle=300,
+        pool_pre_ping=True
+    )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 Base = declarative_base()
 
-# Dependency to get the database session
 def get_db():
     db = SessionLocal()
     try:

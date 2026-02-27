@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 // 🌟 FIX: Use the central api config
 import api from '../api/axiosConfig'; 
-import { useNavigate } from 'react-router-dom';
 import Footer from '../components/layout/Footer';
 import ThemeToggle from '../components/layout/ThemeToggle';
 import { ArrowLeft, SlidersHorizontal, CheckCircle2, Calculator, Search } from 'lucide-react';
@@ -9,9 +9,12 @@ import { ArrowLeft, SlidersHorizontal, CheckCircle2, Calculator, Search } from '
 const PracticeConfigPage = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Database Data State
   const [dbData, setDbData] = useState({ subjects: [], years: [], topics: {}, pucLevels: [] });
   const [topicSearch, setTopicSearch] = useState('');
 
+  // Form Configuration State
   const [config, setConfig] = useState({
     subject: '',
     topics: [],
@@ -20,10 +23,11 @@ const PracticeConfigPage = () => {
     difficulty: { easy: 10, moderate: 15, hard: 5 }
   });
 
+  // Fetch Metadata on Load
   useEffect(() => {
     const fetchMetadata = async () => {
       try {
-        // 🌟 FIX: Standardized relative path
+        // 🌟 FIX: Standardized relative path using our cloud-ready api instance
         const response = await api.get('/practice/metadata'); 
         setDbData(response.data);
       } catch (error) {
@@ -33,16 +37,69 @@ const PracticeConfigPage = () => {
     fetchMetadata();
   }, []);
 
-  // ... (toggle and search logic stays the same) ...
+  // 🌟 RESTORED: handleSubjectChange (Fixes ReferenceError)
+  const handleSubjectChange = (e) => {
+    setConfig({ ...config, subject: e.target.value, topics: [] });
+    setTopicSearch(''); 
+  };
 
+  // 🌟 RESTORED: toggleArrayItem logic
+  const toggleArrayItem = (arrayName, item) => {
+    setConfig(prev => {
+      const currentArray = prev[arrayName];
+      if (currentArray.includes(item)) {
+        return { ...prev, [arrayName]: currentArray.filter(i => i !== item) };
+      } else {
+        return { ...prev, [arrayName]: [...currentArray, item] };
+      }
+    });
+  };
+
+  // 🌟 RESTORED: Filter and Sort Topics Logic
+  const availableTopics = dbData.topics[config.subject] || [];
+  const filteredAndSortedTopics = availableTopics
+    .filter(topicObj => {
+      const matchesSearch = topicObj.name.toLowerCase().includes(topicSearch.toLowerCase());
+      const matchesPuc = config.puc_levels.length === 0 || config.puc_levels.includes(topicObj.level);
+      return matchesSearch && matchesPuc;
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  // 🌟 RESTORED: handleSelectAllTopics (Fixes ReferenceError)
+  const handleSelectAllTopics = () => {
+    const visibleTopicNames = filteredAndSortedTopics.map(t => t.name);
+    const allSelected = visibleTopicNames.length > 0 && visibleTopicNames.every(name => config.topics.includes(name));
+
+    if (allSelected) {
+      // Deselect all visible
+      setConfig(prev => ({
+        ...prev,
+        topics: prev.topics.filter(name => !visibleTopicNames.includes(name))
+      }));
+    } else {
+      // Select all visible
+      setConfig(prev => {
+        const newTopics = new Set([...prev.topics, ...visibleTopicNames]);
+        return { ...prev, topics: Array.from(newTopics) };
+      });
+    }
+  };
+
+  // 🌟 FIX: defined totalQuestions before the return to prevent crash
+  const totalQuestions = Number(config.difficulty.easy) + Number(config.difficulty.moderate) + Number(config.difficulty.hard);
+
+  // Form Submission
   const handleGenerate = async (e) => {
     e.preventDefault();
-    if (!config.subject || config.topics.length === 0 || config.years.length === 0) {
-        return alert("Please fill in all required fields!");
-    }
+    
+    if (!config.subject) return alert("Please select a subject!");
+    if (config.topics.length === 0) return alert("Please select at least one topic!");
+    if (config.years.length === 0) return alert("Please select at least one year!");
+    if (totalQuestions === 0) return alert("Please add at least one question to the difficulty counts!");
     
     try {
       setIsLoading(true);
+      
       const payload = {
         ...config,
         years: Array.isArray(config.years) ? config.years.flat().map(String) : [],
@@ -54,27 +111,23 @@ const PracticeConfigPage = () => {
         }
       };
 
-      // 🌟 FIX: Clean API call
+      // 🌟 FIX: Using the api config to talk to Render
       const response = await api.post('/practice/generate', payload);
       const realQuestions = response.data.questions;
       
       if (!realQuestions || realQuestions.length === 0) {
-        return alert("No questions found for these exact filters.");
+        return alert("No questions found for these exact filters in the database.");
       }
 
       navigate('/preview', { state: { config: payload, mode: 'practice', questions: realQuestions } });
+      
     } catch (error) {
       console.error("Error details:", error.response?.data);
-      alert("Failed to connect to the question database.");
+      alert("Failed to connect to the question database. Check your internet.");
     } finally {
       setIsLoading(false);
     }
   };
-  const totalQuestions = Number(config.difficulty.easy) + Number(config.difficulty.moderate) + Number(config.difficulty.hard);
-
-  // console.log("Current Subject:", config.subject);
-  // console.log("Topics in State:", config.topics);
-  // console.log("Topics ready to render:", filteredAndSortedTopics);
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-slate-50 dark:bg-slate-900 transition-colors duration-200">
@@ -174,7 +227,7 @@ const PracticeConfigPage = () => {
                   />
                 </div>
 
-                {/* Topics List (CLEANED OF GHOST BUGS) */}
+                {/* Topics List */}
                 <div className="border border-gray-300 dark:border-slate-600 rounded-lg p-3 max-h-48 overflow-y-auto bg-gray-50 dark:bg-slate-800/50 space-y-2">
                   {!config.subject ? (
                     <p className="text-sm text-gray-500 italic">Select a subject first...</p>

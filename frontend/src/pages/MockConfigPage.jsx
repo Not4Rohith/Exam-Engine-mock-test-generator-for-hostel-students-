@@ -8,20 +8,25 @@ import { ArrowLeft, Settings, CheckCircle2 } from 'lucide-react';
 
 const MockConfigPage = () => {
   const navigate = useNavigate();
+  
   const [isLoading, setIsLoading] = useState(false); 
+
+  // 1. Add State for DB Data
   const [dbData, setDbData] = useState({ subjects: [], years: [] });
   
+  // Default configurations
   const [config, setConfig] = useState({
     subject: '',
-    years: [],
+    years: [], // Fixed: Start with an empty array
     difficulty: { easy: 25, moderate: 25, hard: 10 },
     includeDeleted: false
   });
 
+  // 2. Fetch Metadata on Load
   useEffect(() => {
     const fetchMetadata = async () => {
       try {
-        // 🌟 FIX: Relative path (api instance handles the base URL)
+        // 🌟 FIX: Use the relative path. api handles the 'https://.../api' part!
         const response = await api.get('/mock/metadata'); 
         setDbData(response.data);
       } catch (error) {
@@ -31,6 +36,7 @@ const MockConfigPage = () => {
     fetchMetadata();
   }, []);
 
+  // 3. Toggle Array Item Logic
   const toggleArrayItem = (arrayName, item) => {
     setConfig(prev => {
       const currentArray = prev[arrayName];
@@ -42,11 +48,19 @@ const MockConfigPage = () => {
     });
   };
 
+  // 🌟 FIX: Added the missing named handler to prevent ReferenceErrors
+  const handleSubjectChange = (e) => {
+    setConfig({...config, subject: e.target.value});
+  };
+
   const handleGenerate = async (e) => {
     e.preventDefault();
+    
+    // Validation Checks
     if (!config.subject) return alert("Please select a subject first!");
     if (config.years.length === 0) return alert("Please select at least one year!");
 
+    // Ensure the difficulty distribution exactly equals 60
     const totalQs = Number(config.difficulty.easy) + Number(config.difficulty.moderate) + Number(config.difficulty.hard);
     if (totalQs !== 60) {
       alert(`For a Mock Test, the total questions must be exactly 60. Currently, you have ${totalQs}.`);
@@ -55,6 +69,7 @@ const MockConfigPage = () => {
     
     try {
       setIsLoading(true);
+
       const payload = {
         ...config,
         years: Array.isArray(config.years) ? config.years.flat().map(String) : [],
@@ -65,19 +80,20 @@ const MockConfigPage = () => {
         }
       };
       
-      // 🌟 FIX: Clean API call
+      // 🌟 FIX: Clean API call using the central instance
       const response = await api.post('/mock/generate', payload);
       const realQuestions = response.data.questions;
       
       if (!realQuestions || realQuestions.length === 0) {
-        alert("Not enough questions in the database for these years!");
+        alert("Not enough questions in the database to generate a full mock test for these years!");
         return;
       }
 
       navigate('/preview', { state: { config: payload, mode: 'mock', questions: realQuestions } });
+      
     } catch (error) {
       console.error("Error details:", error.response?.data);
-      alert("Failed to connect to the server. Check your connection.");
+      alert("Failed to connect to the server. Please check your internet.");
     } finally {
       setIsLoading(false);
     }
@@ -117,7 +133,7 @@ const MockConfigPage = () => {
                 <select 
                   className="w-full p-3 border border-gray-300 dark:border-slate-600 rounded-lg bg-transparent dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                   value={config.subject}
-                  onChange={(e) => setConfig({...config, subject: e.target.value})}
+                  onChange={handleSubjectChange}
                   required
                 >
                   <option value="" className="dark:text-black">Choose a subject...</option>
