@@ -70,6 +70,7 @@ const PracticeConfigPage = () => {
       setIsLoading(false);
     }
   };
+  const totalQuestions = Number(config.difficulty.easy) + Number(config.difficulty.moderate) + Number(config.difficulty.hard);
 
   // console.log("Current Subject:", config.subject);
   // console.log("Topics in State:", config.topics);
