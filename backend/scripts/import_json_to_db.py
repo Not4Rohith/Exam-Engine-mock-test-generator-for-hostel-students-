@@ -1,18 +1,20 @@
 import os
 import json
-from backend.app.core.database import init_db, SessionLocal
+# Dropped init_db, importing engine and Base directly
+from backend.app.core.database import SessionLocal, engine, Base
 from backend.app.models.question import Question
 
 DATA_FOLDER = "backend/data/raw_json"
 
 def extract_subject_year(filename):
-    # Example: phy_2023.json
     name = filename.replace(".json", "")
     subject, year = name.split("_")
     return subject.upper(), int(year)
 
 def import_data():
-    init_db()
+    # Force create all tables in whatever DB we are connected to (Neon or SQLite)
+    Question.metadata.create_all(bind=engine)
+    
     db = SessionLocal()
 
     files = [f for f in os.listdir(DATA_FOLDER) if f.endswith(".json")]
@@ -21,14 +23,12 @@ def import_data():
 
     for file in files:
         filepath = os.path.join(DATA_FOLDER, file)
-
         subject, year = extract_subject_year(file)
 
         with open(filepath, "r") as f:
             data = json.load(f)
 
         for q in data["questions"]:
-
             # Avoid duplicate insertion
             exists = db.query(Question).filter_by(question_id=q["question_id"]).first()
             if exists:
