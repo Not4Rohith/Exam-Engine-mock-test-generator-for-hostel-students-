@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Defaults to localhost for development
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://exam-engine-mock-test-generator-for.onrender.com';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://exam-engine-mock-test-generator-api.onrender.com/api';
 
 export const checkServerHealth = async () => {
   try {
