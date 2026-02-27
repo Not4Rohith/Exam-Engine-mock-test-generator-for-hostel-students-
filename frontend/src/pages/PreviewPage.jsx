@@ -3,7 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Footer from '../components/layout/Footer';
 import ThemeToggle from '../components/layout/ThemeToggle';
 import { ArrowLeft, ToggleLeft, ToggleRight, FileText, Key, BookOpen, RotateCcw } from 'lucide-react';
-import axios from 'axios';
+// 🌟 FIX 1: Use your central api config
+import api from '../api/axiosConfig';
 
 const PreviewPage = () => {
   const navigate = useNavigate();
@@ -35,46 +36,41 @@ const PreviewPage = () => {
   const handleDownload = async (type) => {
     try {
       const payload = {
-        // FIX 1: Send selectedQs so the checkboxes actually work!
         question_ids: selectedQs.map(id => String(id)), 
-        
         document_type: type,
-        
-        // FIX 2: Fixed the typo (removed the "is")
         page_saving_mode: pageSavingMode, 
         show_extra_info: showExtraInfo
       };
 
-      // 1. Send request AND tell Axios to expect a file (blob) back
-      const response = await axios.post('http://localhost:8000/api/pdf/download', payload, {
+      // 🌟 FIX 2: Use api.post('/pdf/download') 
+      // It handles the 'https://.../api' part automatically
+      const response = await api.post('/pdf/download', payload, {
         responseType: 'blob' 
       });
 
-      // 2. Create a temporary URL for the blob
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      
-      // 3. Create a hidden link, click it to download, then destroy it
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `ExamEngine_${type}.pdf`); // Names the file
+      link.setAttribute('download', `ExamEngine_${type}.pdf`);
       document.body.appendChild(link);
       link.click();
       
-      // Cleanup
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
 
     } catch (error) {
       console.error("PDF Download Error:", error);
-      alert("Failed to generate PDF. Check your browser console or Python terminal!");
+      alert("Failed to generate PDF. Check your internet connection.");
     }
   };
+
   const handleRegenerate = async () => {
     try {
       setIsRegenerating(true);
-      const endpoint = mode === 'mock' ? '/api/mock/generate' : '/api/practice/generate';
+      // 🌟 FIX 3: Relative paths only! Base URL handles the rest.
+      const endpoint = mode === 'mock' ? '/mock/generate' : '/practice/generate';
       
-      const response = await axios.post(`http://localhost:8000${endpoint}`, config);
+      const response = await api.post(endpoint, config);
       const newQuestions = response.data.questions;
 
       if (newQuestions && newQuestions.length > 0) {
@@ -87,7 +83,7 @@ const PreviewPage = () => {
       }
     } catch (error) {
       console.error("Regeneration failed:", error);
-      alert("Error fetching new questions.");
+      alert("Error fetching new questions from the server.");
     } finally {
       setIsRegenerating(false);
     }
@@ -156,18 +152,12 @@ const PreviewPage = () => {
                 className="mt-1 w-5 h-5 accent-blue-600 cursor-pointer shrink-0"
               />
               <div className="flex-1">
-
-                {/* ALWAYS SHOW ID: Pinned right above the question */}
                 <div className="mb-2">
                   <span className="bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded text-xs font-bold font-mono shadow-sm">
                     {q.question_id}
                   </span>
                 </div>
-
-                {/* Fallback to q.text if q.question_text is empty to prevent crashes */}
                 <p className="text-gray-800 dark:text-gray-200 font-medium leading-relaxed">{index + 1}. {q.question_text || q.text}</p>
-                
-                {/* extra info toggle */}
                 {showExtraInfo && (
                   <div className="mt-3 flex flex-wrap gap-2 text-xs">
                     <span className="bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 px-2 py-1 rounded">Topic: {q.topic}</span>

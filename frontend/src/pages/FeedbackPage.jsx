@@ -1,48 +1,46 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+// 🌟 FIX: Use the central api config
+import api from '../api/axiosConfig'; 
 import Footer from '../components/layout/Footer';
 import { ArrowLeft, MessageSquare, Send } from 'lucide-react';
 import ThemeToggle from '../components/layout/ThemeToggle';
-import axios from 'axios';
 
 const FeedbackPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ name: '', feedback: '' });
   const [message, setMessage] = useState('');
-  const [status, setStatus] = useState('idle'); // 'idle', 'sending', 'success', 'error'
+  const [status, setStatus] = useState('idle');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Prevent submitting empty spaces
     if (!formData.name.trim() || !formData.feedback.trim()) {
       return alert("Please fill out all fields.");
     }
 
     try {
       setStatus('sending');
-      setMessage(''); // Clear any previous messages
+      setMessage(''); 
       
-      // Ensure the keys match what your Python FeedbackCreate schema expects
-      await axios.post('http://localhost:8000/api/feedback/', {
+      // 🌟 FIX: Clean API call (baseURL already includes /api)
+      await api.post('/feedback', {
         name: formData.name.trim(),
         feedback: formData.feedback.trim()
       });
       
       setStatus('success');
       setMessage("Feedback submitted successfully! Thank you.");
-      setFormData({ name: '', feedback: '' }); // Clear form
+      setFormData({ name: '', feedback: '' }); 
       
-      // Optional: hide the success message after 5 seconds
       setTimeout(() => setMessage(''), 5000);
       
     } catch (error) {
       console.error("Submission error:", error);
       setStatus('error');
-      setMessage("Failed to submit. Is the backend running?");
+      setMessage("Failed to submit. Please check your internet connection.");
     }
   };
-
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 transition-colors duration-200 font-sans">
       

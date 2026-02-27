@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+// 🌟 FIX: Use the central api config
+import api from '../api/axiosConfig'; 
 import Footer from '../components/layout/Footer';
 import { ArrowLeft, AlertTriangle, Send } from 'lucide-react';
 import ThemeToggle from '../components/layout/ThemeToggle';
-import axios from 'axios';
 
 const ReportPage = () => {
   const navigate = useNavigate();
@@ -14,28 +15,27 @@ const ReportPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Quick validation to prevent empty spaces
     if (!questionId.trim()) return alert("Please enter a Question ID.");
     
     try {
       setIsSubmitting(true);
-      // Fixed the 'formData' bug. It now correctly uses the 'questionId' state.
-      await axios.post('http://localhost:8000/api/reports/', {
+      // 🌟 FIX: Clean API call to /reports
+      await api.post('/reports', {
         question_id: questionId.trim() 
       });
       
       setMessage("Report submitted successfully!");
       alert("Report submitted. We'll look into this question!");
-      navigate(-1); // Takes them back to the previous page
+      navigate(-1); 
       
     } catch (error) {
       console.error("Report error:", error);
-      alert("Could not submit report. Is the backend running?");
+      alert("Could not submit report. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
   };
-
+  
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 transition-colors duration-200 font-sans">
       {/* Fixed Header Layout */}

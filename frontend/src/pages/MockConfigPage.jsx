@@ -1,33 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; 
+// 🌟 FIX: Use the central api config
+import api from '../api/axiosConfig'; 
 import Footer from '../components/layout/Footer';
 import ThemeToggle from '../components/layout/ThemeToggle';
 import { ArrowLeft, Settings, CheckCircle2 } from 'lucide-react';
 
 const MockConfigPage = () => {
   const navigate = useNavigate();
-  
   const [isLoading, setIsLoading] = useState(false); 
-
-  // 1. Add State for DB Data
   const [dbData, setDbData] = useState({ subjects: [], years: [] });
   
-  // Default configurations
   const [config, setConfig] = useState({
     subject: '',
-    years: [], // Fixed: Start with an empty array
+    years: [],
     difficulty: { easy: 25, moderate: 25, hard: 10 },
     includeDeleted: false
   });
 
-  // 2. Fetch Metadata on Load (THIS WAS MISSING!)
   useEffect(() => {
     const fetchMetadata = async () => {
       try {
-        // If your metadata route is in mock.py, use this URL. 
-        // If it's only in practice.py, you can use '/api/practice/metadata' here instead!
-        const response = await axios.get('http://localhost:8000/api/mock/metadata'); 
+        // 🌟 FIX: Relative path (api instance handles the base URL)
+        const response = await api.get('/mock/metadata'); 
         setDbData(response.data);
       } catch (error) {
         console.error("Failed to fetch database metadata:", error);
@@ -36,7 +31,6 @@ const MockConfigPage = () => {
     fetchMetadata();
   }, []);
 
-  // 3. Toggle Array Item Logic (THIS WAS MISSING!)
   const toggleArrayItem = (arrayName, item) => {
     setConfig(prev => {
       const currentArray = prev[arrayName];
@@ -50,12 +44,9 @@ const MockConfigPage = () => {
 
   const handleGenerate = async (e) => {
     e.preventDefault();
-    
-    // Validation Checks
     if (!config.subject) return alert("Please select a subject first!");
     if (config.years.length === 0) return alert("Please select at least one year!");
 
-    // Ensure the difficulty distribution exactly equals 60
     const totalQs = Number(config.difficulty.easy) + Number(config.difficulty.moderate) + Number(config.difficulty.hard);
     if (totalQs !== 60) {
       alert(`For a Mock Test, the total questions must be exactly 60. Currently, you have ${totalQs}.`);
@@ -64,7 +55,6 @@ const MockConfigPage = () => {
     
     try {
       setIsLoading(true);
-
       const payload = {
         ...config,
         years: Array.isArray(config.years) ? config.years.flat().map(String) : [],
@@ -75,19 +65,19 @@ const MockConfigPage = () => {
         }
       };
       
-      const response = await axios.post('http://localhost:8000/api/mock/generate', payload);
+      // 🌟 FIX: Clean API call
+      const response = await api.post('/mock/generate', payload);
       const realQuestions = response.data.questions;
       
       if (!realQuestions || realQuestions.length === 0) {
-        alert("Not enough questions in the database to generate a full mock test for these years!");
+        alert("Not enough questions in the database for these years!");
         return;
       }
 
       navigate('/preview', { state: { config: payload, mode: 'mock', questions: realQuestions } });
-      
     } catch (error) {
       console.error("Error details:", error.response?.data);
-      alert(`Error: ${JSON.stringify(error.response?.data?.detail) || "Failed to connect"}`);
+      alert("Failed to connect to the server. Check your connection.");
     } finally {
       setIsLoading(false);
     }
