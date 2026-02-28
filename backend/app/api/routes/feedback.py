@@ -27,7 +27,7 @@ async def notify_discord(title: str, message: str, color: int):
             print(f"Discord notification failed: {e}")
 
 # 🌟 CHANGED: Added 'async' so we can use 'await' inside
-@router.post("/")
+@router.post("/feedback")
 async def submit_feedback(data: FeedbackCreate, db: Session = Depends(get_db)):
     try:
         # 1. Save to Database
