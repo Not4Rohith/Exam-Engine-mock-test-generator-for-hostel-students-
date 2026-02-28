@@ -35,12 +35,14 @@ app.add_middleware(
 app.include_router(health.router, prefix="/api", tags=["Health"]) 
 
 # The rest are fine as they map to specific endpoints
-app.include_router(exams.router, prefix="/api/exams", tags=["Exams"])
-app.include_router(mock.router, prefix="/api/mock", tags=["Mock Test"])
-app.include_router(practice.router, prefix="/api/practice", tags=["Practice Test"])
-app.include_router(reports.router, prefix="/api/reports", tags=["Reports"])
-app.include_router(feedback.router, prefix="/api/feedback", tags=["Feedback"])
-app.include_router(pdf.router, prefix="/api/pdf", tags=["PDF Generation"])
+# 🌟 Change all of these to just prefix="/api"
+# app.include_router(health.router, prefix="/api", tags=["Health"])
+app.include_router(exams.router, prefix="/api", tags=["Exams"])
+app.include_router(mock.router, prefix="/api", tags=["Mock Test"])
+app.include_router(practice.router, prefix="/api", tags=["Practice Test"])
+app.include_router(reports.router, prefix="/api", tags=["Reports"])
+app.include_router(feedback.router, prefix="/api", tags=["Feedback"])
+app.include_router(pdf.router, prefix="/api", tags=["PDF Generation"])
 
 @app.get("/")
 async def root():
