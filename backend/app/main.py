@@ -38,13 +38,16 @@ app.include_router(health.router, prefix="/api", tags=["Health"])
 # 🌟 Change all of these to just prefix="/api"
 # app.include_router(health.router, prefix="/api", tags=["Health"])
 # app.include_router(health.router, prefix="/api/health", tags=["Health"]) 
+# 🌟 Every resource gets its OWN prefix. No overlaps.
 app.include_router(exams.router, prefix="/api/exams", tags=["Exams"])
 app.include_router(mock.router, prefix="/api/mock", tags=["Mock Test"])
 app.include_router(practice.router, prefix="/api/practice", tags=["Practice Test"])
-app.include_router(reports.router, prefix="/api", tags=["Reports"])
-app.include_router(feedback.router, prefix="/api", tags=["Feedback"])
 app.include_router(pdf.router, prefix="/api/pdf", tags=["PDF Generation"])
+app.include_router(health.router, prefix="/api/health", tags=["Health"])
 
+# These two now have their own unique folders too
+app.include_router(reports.router, prefix="/api/reports", tags=["Reports"])
+app.include_router(feedback.router, prefix="/api/feedback", tags=["Feedback"])
 @app.get("/")
 async def root():
     return {"message": "Welcome to the Exam Engine API. System is operational."}
