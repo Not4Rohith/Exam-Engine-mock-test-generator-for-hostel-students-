@@ -7,8 +7,8 @@ from backend.app.models.feedback import Feedback
 from backend.app.schemas.feedback_schema import FeedbackCreate
 
 router = APIRouter()
-
-DISCORD_URL = os.getenv("https://discord.com/api/webhooks/1477252438582104156/XGtRyMwgWctVIBYIitoIeedTO2W4RycmEk7CHjrmoXbpFptIRc8n1qAkDvF31IlwE4Sc")
+#loads from render
+DISCORD_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
 async def notify_discord(title: str, message: str, color: int):
     if not DISCORD_URL:
