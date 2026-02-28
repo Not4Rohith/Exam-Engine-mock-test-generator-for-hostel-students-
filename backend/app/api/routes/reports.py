@@ -29,7 +29,7 @@ async def notify_discord_report(question_id: int):
             print(f"Report notification failed: {e}")
 
 # 🌟 FIX: Change "/" to "/reports" to match your frontend call
-@router.post("/")
+@router.post("/reports")
 async def submit_report(data: ReportCreate, db: Session = Depends(get_db)):
     try:
         # 1. Save to DB
