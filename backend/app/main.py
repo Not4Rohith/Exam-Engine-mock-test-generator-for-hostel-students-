@@ -16,7 +16,7 @@ app = FastAPI(
     title="Exam Engine API",
     description="Backend for generating custom KCET mock and practice tests.",
     version="1.0.0",
-    redirect_slashes=False  # 🌟 FIX: Stops the 307 Redirect loop
+    redirect_slashes=False  #  FIX: Stops the 307 Redirect loop
 )
 
 # 3. CORS Configuration
@@ -29,16 +29,16 @@ app.add_middleware(
 )
 
 # 4. Include Routers (FIXED PREFIXES)
-# 🌟 CRITICAL FIX: Your health router likely already has a "/" route. 
+# CRITICAL FIX: Your health router likely already has a "/" route. 
 # If you use prefix="/api/health", the final URL becomes /api/health/ 
 # We remove the suffix from the prefix to keep it clean.
 app.include_router(health.router, prefix="/api", tags=["Health"]) 
 
 # The rest are fine as they map to specific endpoints
-# 🌟 Change all of these to just prefix="/api"
+#  Change all of these to just prefix="/api"
 # app.include_router(health.router, prefix="/api", tags=["Health"])
 # app.include_router(health.router, prefix="/api/health", tags=["Health"]) 
-# 🌟 Every resource gets its OWN prefix. No overlaps.
+# Every resource gets its OWN prefix. No overlaps.
 app.include_router(exams.router, prefix="/api/exams", tags=["Exams"])
 app.include_router(mock.router, prefix="/api/mock", tags=["Mock Test"])
 app.include_router(practice.router, prefix="/api/practice", tags=["Practice Test"])

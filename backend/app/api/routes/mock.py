@@ -6,11 +6,12 @@ from backend.app.services.mock_engine import generate_mock_paper
 from backend.app.models.question import Question
 import random
 from sqlalchemy.sql.expression import func
+from backend.app.core.notifications import notify_generation # new, for dc
 
 router = APIRouter()
 
 @router.post("/generate")
-def generate_mock_test(request: MockRequest, db: Session = Depends(get_db)):
+async def generate_mock_test(request: MockRequest, db: Session = Depends(get_db)): # async added
     # 1. Base filter for Mock (Only Subject, ignore topics)
 
     DELETED_TOPICS = [
@@ -34,7 +35,7 @@ def generate_mock_test(request: MockRequest, db: Session = Depends(get_db)):
             Question.difficulty.ilike(difficulty_level)
         ).order_by(func.random()).limit(limit).all()
 
-    # 3. Fetch the exact KCET counts (e.g., 25 Easy, 25 Mod, 10 Hard)
+    # 3. Fetch the exact KCET counts // 25 Easy, 25 Mod, 10 Hard
     easy_qs = get_qs("Easy", request.difficulty.easy)
     mod_qs = get_qs("Moderate", request.difficulty.moderate)
     hard_qs = get_qs("Hard", request.difficulty.hard)
@@ -42,6 +43,12 @@ def generate_mock_test(request: MockRequest, db: Session = Depends(get_db)):
     # 4. Combine and shuffle
     final_questions = easy_qs + mod_qs + hard_qs
     random.shuffle(final_questions)
+
+    # dc
+    total_count = len(final_questions)
+    await notify_generation(f"📊 **Mock** question paper of **{total_count}** questions generated for {request.subject}")
+    
+    return {"questions": [q.__dict__ for q in final_questions]}
 
     return {"questions": [q.__dict__ for q in final_questions]}
 

@@ -7,11 +7,13 @@ from backend.app.core.database import get_db
 from backend.app.models.question import Question 
 from backend.app.services.practice_engine import generate_practice_paper
 from backend.app.schemas.generate import PracticeRequest
+from backend.app.core.notifications import notify_generation # for dc
+
 
 router = APIRouter()
 
 @router.post("/generate")
-def create_practice_test(request: PracticeRequest, db: Session = Depends(get_db)):
+async def create_practice_test(request: PracticeRequest, db: Session = Depends(get_db)): # async added
     # 1. Build the base filter (Subject, Topics, Years)
     base_query = db.query(Question).filter(
         Question.subject == request.subject,
@@ -36,6 +38,13 @@ def create_practice_test(request: PracticeRequest, db: Session = Depends(get_db)
     # 4. Combine and shuffle so they aren't ordered strictly by difficulty
     final_questions = easy_qs + mod_qs + hard_qs
     random.shuffle(final_questions)
+
+    # dc
+
+    total_count = len(final_questions)
+    await notify_generation(f"📝 **Practice** question paper of **{total_count}** questions generated for {request.subject}")
+
+    return {"questions": [q.__dict__ for q in final_questions]}
 
     return {"questions": [q.__dict__ for q in final_questions]}
 

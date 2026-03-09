@@ -13,7 +13,7 @@ if DATABASE_URL.startswith("postgres://"):
 if DATABASE_URL.startswith("sqlite"):
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 else:
-    # 🌟 THIS IS THE FIX:
+    # THIS IS THE FIX:
     # pool_pre_ping: Tests the connection before every query to avoid the SSL crash
     # pool_recycle: Forces a new connection every 5 minutes before the cloud provider kills it
     engine = create_engine(
