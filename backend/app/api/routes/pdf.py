@@ -6,6 +6,7 @@ from backend.app.schemas.pdf import PDFRequest
 
 #  Import the real engine we just built
 from backend.app.services.pdf_engine import generate_pdf_bytes
+from backend.app.core.notifications import notify_generation # for dc
 
 router = APIRouter()
 
