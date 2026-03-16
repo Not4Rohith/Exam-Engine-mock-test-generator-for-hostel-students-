@@ -46,7 +46,7 @@ def clean_and_format_text(text: str, is_question: bool = False) -> str:
     text = re.sub(r'_\{([^}]+)\}', r'<sub>\1</sub>', text)
     text = re.sub(r'_([0-9a-zA-Z+-]+)', r'<sub>\1</sub>', text)
 
-    # 6. 🌟 SMART CHEMISTRY FORMATTER 🌟
+    # 6.  SMART CHEMISTRY FORMATTER 
     # Matches chemical charges at the end of words (e.g., SO42- becomes SO4<super>2-</super>)
     text = re.sub(r'(?<=[A-Za-z0-9])(\d?[+-])(?=\s|$|\.|,|\))', r'<super>\1</super>', text)
     # Matches chemical subscripts (e.g., H2O becomes H<sub>2</sub>O)
@@ -166,7 +166,7 @@ def generate_pdf_bytes(questions: list, doc_type: str, two_column: bool, show_ex
                 story.append(Paragraph(f"<b>{index}.</b> {q_text}", normal_style))
                 story.append(Spacer(1, 0.1 * cm))
                 
-                # 🌟 THE IMAGE INJECTOR 🌟
+                # THE IMAGE INJECTOR 
                 inject_images(q)
                 
                 # Options
@@ -189,7 +189,7 @@ def generate_pdf_bytes(questions: list, doc_type: str, two_column: bool, show_ex
                 story.append(Paragraph(f"<b>{index}.</b> Answer: <b>{ans}</b>", normal_style))
                 story.append(Spacer(1, 0.1 * cm))
                 
-                # 🌟 THE IMAGE INJECTOR 🌟
+                #  THE IMAGE INJECTOR 
                 inject_images(q)
                 
                 story.append(Paragraph(f"{sol_text}", options_style))

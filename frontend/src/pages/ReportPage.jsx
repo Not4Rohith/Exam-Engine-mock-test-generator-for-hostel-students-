@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// 🌟 FIX: Use the central api config
+//FIX: Use the central api config
 import api from '../api/axiosConfig'; 
 import Footer from '../components/layout/Footer';
 import { ArrowLeft, AlertTriangle, Send } from 'lucide-react';
@@ -19,7 +19,7 @@ const ReportPage = () => {
     
     try {
       setIsSubmitting(true);
-      // 🌟 FIX: Clean API call to /reports
+      //  FIX: Clean API call to /reports
       await api.post('/reports', {
         question_id: questionId.trim() 
       });

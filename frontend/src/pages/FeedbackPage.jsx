@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// 🌟 FIX: Use the central api config
+//  FIX: Use the central api config
 import api from '../api/axiosConfig'; 
 import Footer from '../components/layout/Footer';
 import { ArrowLeft, MessageSquare, Send } from 'lucide-react';
@@ -22,8 +22,8 @@ const FeedbackPage = () => {
     try {
       setStatus('sending');
       setMessage(''); 
-      
-      // 🌟 FIX: Clean API call (baseURL already includes /api)
+    
+      //  FIX: Clean API call (baseURL already includes /api)
       await api.post('/feedback', {
         name: formData.name.trim(),
         feedback: formData.feedback.trim()

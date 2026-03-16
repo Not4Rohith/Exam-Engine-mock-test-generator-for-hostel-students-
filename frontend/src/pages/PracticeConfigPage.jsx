@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-// 🌟 FIX: Use the central api config
+//  FIX: Use the central api config
 import api from '../api/axiosConfig'; 
 import Footer from '../components/layout/Footer';
 import ThemeToggle from '../components/layout/ThemeToggle';
@@ -27,7 +27,7 @@ const PracticeConfigPage = () => {
   useEffect(() => {
     const fetchMetadata = async () => {
       try {
-        // 🌟 FIX: Standardized relative path using our cloud-ready api instance
+        //  FIX: Standardized relative path using our cloud-ready api instance
         const response = await api.get('/practice/metadata'); 
         setDbData(response.data);
       } catch (error) {
@@ -37,13 +37,13 @@ const PracticeConfigPage = () => {
     fetchMetadata();
   }, []);
 
-  // 🌟 RESTORED: handleSubjectChange (Fixes ReferenceError)
+  //  RESTORED: handleSubjectChange (Fixes ReferenceError)
   const handleSubjectChange = (e) => {
     setConfig({ ...config, subject: e.target.value, topics: [] });
     setTopicSearch(''); 
   };
 
-  // 🌟 RESTORED: toggleArrayItem logic
+  // RESTORED: toggleArrayItem logic
   const toggleArrayItem = (arrayName, item) => {
     setConfig(prev => {
       const currentArray = prev[arrayName];
@@ -55,7 +55,7 @@ const PracticeConfigPage = () => {
     });
   };
 
-  // 🌟 RESTORED: Filter and Sort Topics Logic
+  //  RESTORED: Filter and Sort Topics Logic
   const availableTopics = dbData.topics[config.subject] || [];
   const filteredAndSortedTopics = availableTopics
     .filter(topicObj => {
@@ -65,7 +65,7 @@ const PracticeConfigPage = () => {
     })
     .sort((a, b) => a.name.localeCompare(b.name));
 
-  // 🌟 RESTORED: handleSelectAllTopics (Fixes ReferenceError)
+  //  RESTORED: handleSelectAllTopics (Fixes ReferenceError)
   const handleSelectAllTopics = () => {
     const visibleTopicNames = filteredAndSortedTopics.map(t => t.name);
     const allSelected = visibleTopicNames.length > 0 && visibleTopicNames.every(name => config.topics.includes(name));
@@ -85,7 +85,7 @@ const PracticeConfigPage = () => {
     }
   };
 
-  // 🌟 FIX: defined totalQuestions before the return to prevent crash
+  // FIX: defined totalQuestions before the return to prevent crash
   const totalQuestions = Number(config.difficulty.easy) + Number(config.difficulty.moderate) + Number(config.difficulty.hard);
 
   // Form Submission
@@ -111,7 +111,7 @@ const PracticeConfigPage = () => {
         }
       };
 
-      // 🌟 FIX: Using the api config to talk to Render
+      //  FIX: Using the api config to talk to Render
       const response = await api.post('/practice/generate', payload);
       const realQuestions = response.data.questions;
       

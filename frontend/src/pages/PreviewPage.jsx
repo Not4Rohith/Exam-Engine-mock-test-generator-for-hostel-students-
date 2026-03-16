@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Footer from '../components/layout/Footer';
 import ThemeToggle from '../components/layout/ThemeToggle';
 import { ArrowLeft, ToggleLeft, ToggleRight, FileText, Key, BookOpen, RotateCcw } from 'lucide-react';
-// 🌟 FIX 1: Use your central api config
+//  FIX 1: Use your central api config
 import api from '../api/axiosConfig';
 
 const PreviewPage = () => {
@@ -42,7 +42,7 @@ const PreviewPage = () => {
         show_extra_info: showExtraInfo
       };
 
-      // 🌟 FIX 2: Use api.post('/pdf/download') 
+      //  FIX 2: Use api.post('/pdf/download') 
       // It handles the 'https://.../api' part automatically
       const response = await api.post('/pdf/download', payload, {
         responseType: 'blob' 
@@ -67,7 +67,7 @@ const PreviewPage = () => {
   const handleRegenerate = async () => {
     try {
       setIsRegenerating(true);
-      // 🌟 FIX 3: Relative paths only! Base URL handles the rest.
+      // FIX 3: Relative paths only! Base URL handles the rest.
       const endpoint = mode === 'mock' ? '/mock/generate' : '/practice/generate';
       
       const response = await api.post(endpoint, config);

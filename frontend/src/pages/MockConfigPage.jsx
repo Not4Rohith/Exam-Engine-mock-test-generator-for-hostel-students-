@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-// 🌟 FIX: Use the central api config
+// FIX: Use the central api config
 import api from '../api/axiosConfig'; 
 import Footer from '../components/layout/Footer';
 import ThemeToggle from '../components/layout/ThemeToggle';
@@ -26,7 +26,7 @@ const MockConfigPage = () => {
   useEffect(() => {
     const fetchMetadata = async () => {
       try {
-        // 🌟 FIX: Use the relative path. api handles the 'https://.../api' part!
+        //  FIX: Use the relative path. api handles the 'https://.../api' part!
         const response = await api.get('/mock/metadata'); 
         setDbData(response.data);
       } catch (error) {
@@ -48,7 +48,7 @@ const MockConfigPage = () => {
     });
   };
 
-  // 🌟 FIX: Added the missing named handler to prevent ReferenceErrors
+  //  FIX: Added the missing named handler to prevent ReferenceErrors
   const handleSubjectChange = (e) => {
     setConfig({...config, subject: e.target.value});
   };
