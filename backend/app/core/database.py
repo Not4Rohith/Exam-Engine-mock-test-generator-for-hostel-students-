@@ -4,14 +4,17 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 
 # 1. Get the URL
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./backend/app/exam_engine.db")
+# gets env variable from DATABASE_URL or sets one default value 
 
 # 2. Fix the prefix for Postgres
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    # first occurance changes if wrong.
 
 # 3. Create the engine with "Self-Healing" capabilities
 if DATABASE_URL.startswith("sqlite"):
     engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+    # changing the default settings
 else:
     # THIS IS THE FIX:
     # pool_pre_ping: Tests the connection before every query to avoid the SSL crash
