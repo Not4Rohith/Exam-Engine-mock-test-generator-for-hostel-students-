@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Text, Boolean
-from sqlalchemy.ext.declarative import declarative_base
+from backend.app.core.database import Base
 
-Base = declarative_base()
+#Base = declarative_base() # removed this faulty line
 
 class Question(Base):
     __tablename__ = "questions"
@@ -9,11 +9,12 @@ class Question(Base):
     id = Column(Integer, primary_key=True, index=True)
     question_id = Column(String, unique=True, index=True)
 
-    exam = Column(String)   # ← ADD THIS
+    exam = Column(String)   
 
     year = Column(Integer)
     subject = Column(String)
     topic = Column(String)
+    chapter= Column(String)  # trying to add new column
     puc_level = Column(String)
     difficulty = Column(String)
     question_type = Column(String)

@@ -7,7 +7,7 @@ def generate_mock_paper(db: Session, request: MockRequest):
     questions = []
     
     # In KCET, there are exactly 60 questions.
-    # Rule: ~25% from 11th grade, ~75% from 12th grade.
+    # Rule: 25% from 11th grade, 75% from 12th grade.
     
     difficulty_targets = {
         "Easy": request.difficulty.easy,
@@ -19,7 +19,7 @@ def generate_mock_paper(db: Session, request: MockRequest):
         if total_count <= 0:
             continue
             
-        # Split this difficulty bucket into 11th and 12th
+        # 25% of easy, med, difficult questions belong to 11th
         count_11th = int(total_count * 0.25)
         count_12th = total_count - count_11th
         

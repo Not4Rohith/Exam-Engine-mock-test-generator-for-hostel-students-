@@ -28,6 +28,7 @@ else:
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+# creating a get_db() logic to handle user request
 def get_db():
     db = SessionLocal()
     try:

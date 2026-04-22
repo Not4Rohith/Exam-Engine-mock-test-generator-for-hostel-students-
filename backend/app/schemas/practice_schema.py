@@ -8,6 +8,7 @@ class DifficultyConfig(BaseModel):
 
 class PracticeRequest(BaseModel):
     subject: str
+    chapter: List[str]            # most recently added
     topics: List[str]
     years: List[str]
     difficulty: DifficultyConfig
